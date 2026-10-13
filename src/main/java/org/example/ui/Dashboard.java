@@ -5,7 +5,6 @@ import java.util.Scanner;
 public class Dashboard {
     private static Scanner sc = new Scanner(System.in);
 
-    // Ang menu display nga gikan sa imong Main
     public static void showMainMenu() {
         System.out.println("\n|============================================================|");
         System.out.println("|               SCHOOL SUPPLIES INVENTORY SYSTEM             |");
