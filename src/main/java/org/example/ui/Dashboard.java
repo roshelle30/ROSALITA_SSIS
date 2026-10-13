@@ -5,6 +5,17 @@ import java.util.Scanner;
 public class Dashboard {
     private static Scanner sc = new Scanner(System.in);
 
+    // Ang menu display nga gikan sa imong Main
+    public static void showMainMenu() {
+        System.out.println("\n|============================================================|");
+        System.out.println("|               SCHOOL SUPPLIES INVENTORY SYSTEM             |");
+        System.out.println("|============================================================|");
+        System.out.println("|1. Register                                                 |");
+        System.out.println("|2. Login                                                    |");
+        System.out.println("|3. Exit                                                     |");
+        System.out.println("|============================================================|");
+    }
+
     public static void adminDashboard() {
         boolean inAdminMenu = true;
 
@@ -138,5 +149,3 @@ public class Dashboard {
         }
     }
 }
-
-

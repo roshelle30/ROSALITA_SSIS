@@ -18,13 +18,7 @@ public class Main {
         boolean running = true;
 
         while (running) {
-            System.out.println("\n|============================================================|");
-            System.out.println("|               SCHOOL SUPPLIES INVENTORY SYSTEM             |");
-            System.out.println("|============================================================|");
-            System.out.println("|1. Register                                                 |");
-            System.out.println("|2. Login                                                    |");
-            System.out.println("|3. Exit                                                     |");
-            System.out.println("|============================================================|");
+            Dashboard.showMainMenu();
             System.out.print("Choose an Option: ");
             String choice = sc.nextLine();
 
@@ -95,10 +89,9 @@ public class Main {
 
                 case "3":
                     clearScreen();
-                    System.out.println("\n|============================================================|");
-                    System.out.println("|    Thank you for using School Supplies Inventory System!   |");
-                    System.out.println("|                System Closed Successfully.                 |");
-                    System.out.println("|============================================================|\n");
+                    System.out.println("\n    Thank you for using School Supplies Inventory System!   ");
+                    System.out.println("                System Closed Successfully.                 ");
+
                     running = false;
                     break;
 
