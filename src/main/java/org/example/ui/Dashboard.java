@@ -3,19 +3,13 @@ package org.example.ui;
 import java.util.Scanner;
 
 public class Dashboard {
-    private static Scanner sc = new Scanner(System.in);
+    private final Scanner sc;
 
-    public static void showMainMenu() {
-        System.out.println("\n|============================================================|");
-        System.out.println("|               SCHOOL SUPPLIES INVENTORY SYSTEM             |");
-        System.out.println("|============================================================|");
-        System.out.println("|1. Register                                                 |");
-        System.out.println("|2. Login                                                    |");
-        System.out.println("|3. Exit                                                     |");
-        System.out.println("|============================================================|");
+    public Dashboard(Scanner sc) {
+        this.sc = sc;
     }
 
-    public static void adminDashboard() {
+    public void adminDashboard() {
         boolean inAdminMenu = true;
 
         while (inAdminMenu) {
@@ -61,7 +55,7 @@ public class Dashboard {
         }
     }
 
-    public static void cashierDashboard() {
+    public void cashierDashboard() {
         boolean inCashierMenu = true;
 
         while (inCashierMenu) {
@@ -107,7 +101,7 @@ public class Dashboard {
         }
     }
 
-    public static void inventoryDashboard() {
+    public void inventoryDashboard() {
         boolean inInventoryMenu = true;
 
         while (inInventoryMenu) {
