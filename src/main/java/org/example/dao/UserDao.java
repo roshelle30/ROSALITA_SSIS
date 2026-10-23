@@ -1,9 +1,13 @@
 package org.example.dao;
 
+import org.example.model.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDao {
 
@@ -66,6 +70,63 @@ public class UserDao {
         } catch (SQLException e) {
             System.err.println("Database Error: " + e.getMessage());
             return null;
+        }
+    }
+
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        String query = "SELECT * FROM users";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                users.add(new User(
+                        rs.getInt("user_id"),
+                        rs.getString("full_name"),
+                        rs.getString("username"),
+                        rs.getString("password_hash"),
+                        rs.getString("role"),
+                        rs.getString("status")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    public List<User> getPendingUsers() {
+        List<User> pendingUsers = new ArrayList<>();
+        String query = "SELECT * FROM users WHERE status = 'PENDING'";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                pendingUsers.add(new User(
+                        rs.getInt("user_id"),
+                        rs.getString("full_name"),
+                        rs.getString("username"),
+                        rs.getString("password_hash"),
+                        rs.getString("role"),
+                        rs.getString("status")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return pendingUsers;
+    }
+
+    public boolean approveUser(int userId) {
+        String query = "UPDATE users SET status = 'APPROVED' WHERE user_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, userId);
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

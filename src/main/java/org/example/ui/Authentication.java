@@ -83,7 +83,7 @@ public class Authentication {
                         System.out.println("\nLogged in as: " + userRole);
 
                         if ("ADMIN".equalsIgnoreCase(userRole)) {
-                            dashboard.adminDashboard();
+                            AdminMenu.showAdminMenu();
                         } else if ("STAFF/CASHIER".equalsIgnoreCase(userRole)) {
                             dashboard.cashierDashboard();
                         } else if ("INVENTORY CLERK".equalsIgnoreCase(userRole)) {
@@ -94,10 +94,8 @@ public class Authentication {
 
                 case "3":
                     clearScreen();
-                    System.out.println("\n|============================================================|");
-                    System.out.println("|      Thank you for using School Supplies Inventory System! |");
-                    System.out.println("|                   System Closed Successfully.              |");
-                    System.out.println("|============================================================|\n");
+                    System.out.println("   Thank you for using School Supplies Inventory System!    ");
+                    System.out.println("               System Closed Successfully                   ");
                     running = false;
                     break;
 
