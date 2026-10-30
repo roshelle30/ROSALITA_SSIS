@@ -26,8 +26,49 @@ public class AdminMenu {
         }
         System.out.print(border);
     }
+    private static int readIntInput(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            if (sc.hasNextInt()) {
+                int value = sc.nextInt();
+                sc.nextLine();
+                return value;
+            } else {
+                System.out.println("Invalid input! Please enter a valid number.\n");
+                sc.nextLine();
+            }
+        }
+    }
+
+    private static String readValidRole() {
+        while (true) {
+            System.out.print("\nEnter new role (ADMIN, STAFF/CASHIER, INVENTORY CLERK) [Enter 0 to cancel]: ");
+            String role = sc.nextLine().trim().toUpperCase();
+            if (role.equals("0")) return "0";
+            if (role.equals("ADMIN") || role.equals("STAFF/CASHIER") || role.equals("INVENTORY CLERK")) {
+                return role;
+            }
+            System.out.println( "Invalid role! Please enter a valid role (e.g., ADMIN, STAFF/CASHIER, INVENTORY CLERK).");
+        }
+    }
+
+    private static String readValidStatus() {
+        while (true) {
+            System.out.print("\nEnter new status (APPROVED, PENDING) [Enter 0 to cancel]: ");
+            String status = sc.nextLine().trim().toUpperCase();
+            if (status.equals("0")) return "0";
+            if (status.equals("APPROVED") || status.equals("PENDING")) {
+                return status;
+            }
+            System.out.println( "Invalid status! Please enter APPROVED or PENDING.");
+        }
+    }
 
     public static void showAdminMenu() {
+        showAdminMenu(null);
+    }
+
+    public static void showAdminMenu(User currentAdmin) {
         boolean inAdmin = true;
         while (inAdmin) {
             System.out.println("\n+-----+-----------------+-----------------+--------------------+------------+");
@@ -52,7 +93,8 @@ public class AdminMenu {
                         System.out.println("| 1. View All System Users                                                    |");
                         System.out.println("| 2. View Pending Registrations                                               |");
                         System.out.println("| 3. Approve User Account                                                     |");
-                        System.out.println("| 4. Back to Admin Dashboard                                                  |");
+                        System.out.println("| 4. Update User Role and Status                                              |");
+                        System.out.println("| 5. Back to Admin Dashboard                                                  |");
                         System.out.println("+-----+-----------------+-----------------+--------------------+--------------+");
                         System.out.print("Choose an Option: ");
                         String manageChoice = sc.nextLine();
@@ -82,50 +124,99 @@ public class AdminMenu {
                                         break;
                                     }
                                     displayUserTable(pendings);
-                                    System.out.print("Enter Target User ID to approve (Enter 0 to cancel): ");
 
-                                    if (sc.hasNextInt()) {
-                                        int targetId = sc.nextInt();
-                                        sc.nextLine();
+                                    int targetId = readIntInput("Enter Target User ID to approve (Enter 0 to cancel): ");
 
-                                        if (targetId == 0) {
-                                            System.out.println("Approval action cancelled.");
+                                    if (targetId == 0) {
+                                        System.out.println("Approval action cancelled.");
+                                        break;
+                                    }
+
+                                    boolean existsInPending = false;
+                                    for (User u : pendings) {
+                                        if (u.user_id() == targetId) {
+                                            existsInPending = true;
                                             break;
                                         }
+                                    }
 
-                                        boolean existsInPending = false;
-                                        for (User u : pendings) {
-                                            if (u.user_id() == targetId) {
-                                                existsInPending = true;
-                                                break;
-                                            }
-                                        }
+                                    if (!existsInPending) {
+                                        System.out.println("Error: User ID " + targetId + " does not exist in the pending list! Please try again.\n");
+                                        continue;
+                                    }
 
-                                        if (!existsInPending) {
-                                            System.out.println("Error: User ID " + targetId + " does not exist in the pending list! Please try again.\n");
-                                            continue;
-                                        }
-
-                                        boolean success = userDao.approveUser(targetId);
-                                        if (success) {
-                                            System.out.println("Success: User ID " + targetId + " has been approved!");
-                                            break;
-                                        } else {
-                                            System.out.println("Error: Failed to approve user.");
-                                        }
+                                    boolean success = userDao.approveUser(targetId);
+                                    if (success) {
+                                        System.out.println("Success: User ID " + targetId + " has been approved!");
+                                        break;
                                     } else {
-                                        System.out.println("Invalid input! Please enter a valid number.\n");
-                                        sc.nextLine();
+                                        System.out.println("Error: Failed to approve user.");
                                     }
                                 }
                                 break;
 
                             case "4":
+                                while (true) {
+                                    System.out.println("+-----+-----------------+-----------------+--------------------+------------+");
+                                    System.out.println("|                          UPDATE USER ACCOUNT                              |");
+                                    List<User> allUsersForUpdate = userDao.getAllUsers();
+                                    if (allUsersForUpdate.isEmpty()) {
+                                        System.out.println("No users found.");
+                                        break;
+                                    }
+                                    displayUserTable(allUsersForUpdate);
+
+                                    int targetId = readIntInput("Enter Target User ID to update (Enter 0 to cancel): ");
+                                    if (targetId == 0) {
+                                        System.out.println("Update action cancelled.");
+                                        break;
+                                    }
+                                    if (currentAdmin != null && targetId == currentAdmin.user_id()) {
+                                        System.out.println("WARNING: Modifying the currently active admin account is restricted.\n");
+                                        continue;
+                                    }
+
+                                    boolean exists = false;
+                                    for (User u : allUsersForUpdate) {
+                                        if (u.user_id() == targetId) {
+                                            exists = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (!exists) {
+                                        System.out.println("Error: User ID " + targetId + " does not exist! Please try again.\n");
+                                        continue;
+                                    }
+
+                                    String newRole = readValidRole();
+                                    if (newRole.equals("0")) {
+                                        System.out.println("Update action cancelled.");
+                                        break;
+                                    }
+
+                                    String newStatus = readValidStatus();
+                                    if (newStatus.equals("0")) {
+                                        System.out.println("Update action cancelled.");
+                                        break;
+                                    }
+
+                                    boolean success = userDao.updateUserRoleAndStatus(targetId, newRole, newStatus);
+                                    if (success) {
+                                        System.out.println("Success: User ID " + targetId + " has been successfully updated!");
+                                        break;
+                                    } else {
+                                        System.out.println("Error: Failed to update user.");
+                                    }
+                                }
+                                break;
+
+                            case "5":
                                 inManageUsers = false;
                                 break;
 
                             default:
-                                System.out.println("Invalid option! Please choose between 1 to 4.");
+                                System.out.println("Invalid option! Please choose between 1 to 5.");
                                 break;
                         }
                     }
