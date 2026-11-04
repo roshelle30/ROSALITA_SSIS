@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+    private final ActivityLogDao logDao = new ActivityLogDao();
 
     public boolean registerUser(String full_name, String username, String password_hash, String role){
         String sql = "INSERT INTO users(full_name, username, password_hash, role, status) VALUES (?, ?, ?, ?, 'PENDING')";
@@ -33,44 +34,49 @@ public class UserDao {
 
     public String loginUser(String username, String password_hash) {
         String sql = "SELECT * FROM users WHERE username = ? AND password_hash = ?";
-        String logSql = "INSERT INTO activity_logs (user_id, action) VALUES (?, ?)";
 
+        int userId = -1;
+        String role = null;
+        String status = null;
+        String fullName = null;
+
+        // 1. Kuhaon ang data ug isira dayon ang connection/resultset aron dili ma-lock ang DB
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
             pstmt.setString(2, password_hash);
 
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                int userId = rs.getInt("user_id");
-                String role = rs.getString("role");
-                String status = rs.getString("status");
-
-                if ("PENDING".equalsIgnoreCase(status)) {
-                    System.out.println("Login Failed: Your account is PENDING for Admin approval.");
-                    return null;
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    userId = rs.getInt("user_id");
+                    role = rs.getString("role");
+                    status = rs.getString("status");
+                    fullName = rs.getString("full_name");
                 }
-                try (PreparedStatement logStmt = conn.prepareStatement(logSql)) {
-                    logStmt.setInt(1, userId);
-                    logStmt.setString(2, "Logged in as: " + role.toUpperCase());
-                    logStmt.executeUpdate();
-                } catch (SQLException logEx) {
-                    System.err.println("Failed to record activity log: " + logEx.getMessage());
-                }
-
-                System.out.println("\nLogin Successful! Welcome, " + rs.getString("full_name"));
-                return role;
-            } else {
-                System.out.println("Login Failed: Invalid username or password.");
-                return null;
             }
 
         } catch (SQLException e) {
             System.err.println("Database Error: " + e.getMessage());
             return null;
         }
+
+        // 2. I-check ang status human masira ang login query connection
+        if (userId == -1) {
+            System.out.println("Login Failed: Invalid username or password.");
+            return null;
+        }
+
+        if ("PENDING".equalsIgnoreCase(status)) {
+            System.out.println("Login Failed: Your account is PENDING for Admin approval.");
+            return null;
+        }
+
+        // 3. Safe na nga mo-log kay walay nag-abang nga abli nga resultset
+        logDao.logAction(userId, "Logged in as: " + role.toUpperCase());
+
+        System.out.println("\nLogin Successful! Welcome, " + fullName);
+        return role;
     }
 
     public List<User> getAllUsers() {
@@ -117,21 +123,34 @@ public class UserDao {
         return pendingUsers;
     }
 
-    public boolean approveUser(int userId) {
+    public boolean approveUser(int userId, int adminId) {
         String query = "UPDATE users SET status = 'APPROVED' WHERE user_id = ?";
+        boolean updated = false;
+
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, userId);
             int rowsUpdated = pstmt.executeUpdate();
-            return rowsUpdated > 0;
+            if (rowsUpdated > 0) {
+                updated = true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
+
+        // I-call ang log human masira ang update statement (Gitakdo sa USER_APPROVED format)
+        if (updated) {
+            logDao.logAction(adminId, "USER_APPROVED: Admin " + adminId + " approved account for User ID " + userId);
+            return true;
+        }
+        return false;
     }
 
-    public boolean updateUserRoleAndStatus(int userId, String newRole, String newStatus) {
+    public boolean updateUserRoleAndStatus(int userId, String newRole, String newStatus, int adminId) {
         String query = "UPDATE users SET role = ?, status = ? WHERE user_id = ?";
+        boolean updated = false;
+
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
@@ -140,10 +159,19 @@ public class UserDao {
             pstmt.setInt(3, userId);
 
             int rowsUpdated = pstmt.executeUpdate();
-            return rowsUpdated > 0;
+            if (rowsUpdated > 0) {
+                updated = true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
+
+        // I-call ang log human masira ang update statement (Gitakdo sa USER_UPDATED format)
+        if (updated) {
+            logDao.logAction(adminId, "USER_UPDATED: Admin " + adminId + " changed role of User " + userId + " to " + newRole);
+            return true;
+        }
+        return false;
     }
 }

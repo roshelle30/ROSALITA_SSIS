@@ -35,38 +35,96 @@ public class Authentication {
 
             switch (choice) {
                 case "1":
-                    System.out.print("Enter your Fullname: ");
-                    String name = sc.nextLine();
-                    System.out.print("Enter new Username: ");
-                    String user = sc.nextLine();
-                    System.out.print("Enter Password: ");
-                    String pass = sc.nextLine();
-
-                    System.out.println("Role: ");
-                    System.out.println(" 1. Admin");
-                    System.out.println(" 2. Staff/Cashier");
-                    System.out.println(" 3. Inventory Clerk");
-                    System.out.print("Enter choice (1-3): ");
-
-                    int roleChoice = 0;
-                    try {
-                        roleChoice = Integer.parseInt(sc.nextLine());
-                    } catch (NumberFormatException e) {
-                        roleChoice = 0;
+                    // 1. Validate Fullname
+                    String name;
+                    while (true) {
+                        System.out.print("Enter your Fullname: ");
+                        name = sc.nextLine().trim();
+                        if (name.equals("0")) {
+                            System.out.println("Registration cancelled.");
+                            break;
+                        }
+                        if (name.isEmpty() || name.length() < 2) {
+                            System.out.println("Error: Please enter a valid Fullname.");
+                            continue;
+                        }
+                        break;
                     }
+                    if (name.equals("0")) break;
 
-                    String role;
-                    switch (roleChoice) {
-                        case 1: role = "Admin"; break;
-                        case 2: role = "Staff/Cashier"; break;
-                        case 3: role = "Inventory Clerk"; break;
-                        default: role = null;
+                    // 2. Validate Username
+                    String user;
+                    while (true) {
+                        System.out.print("Enter new Username: ");
+                        user = sc.nextLine().trim();
+                        if (user.equals("0")) {
+                            System.out.println("Registration cancelled.");
+                            break;
+                        }
+                        if (user.isEmpty() || user.length() < 3) {
+                            System.out.println("Error: Username must be at least 3 characters long.");
+                            continue;
+                        }
+                        break;
+                    }
+                    if (user.equals("0")) break;
+
+                    // 3. Validate Password
+                    String pass;
+                    while (true) {
+                        System.out.print("Enter Password (or type '0' to cancel): ");
+                        pass = sc.nextLine().trim();
+                        if (pass.equals("0")) {
+                            System.out.println("Registration cancelled.");
+                            break;
+                        }
+                        if (pass.isEmpty() || pass.length() < 4) {
+                            System.out.println("Error: Password must be at least 4 characters long.");
+                            continue;
+                        }
+                        break;
+                    }
+                    if (pass.equals("0")) break;
+
+                    // 4. Validate Role Selection (Loops until 1, 2, or 3 is selected)
+                    String role = null;
+                    while (true) {
+                        System.out.println("\nRole: ");
+                        System.out.println(" 1. Admin");
+                        System.out.println(" 2. Staff/Cashier");
+                        System.out.println(" 3. Inventory Clerk");
+                        System.out.print("Enter choice (1-3) (or type '0' to cancel): ");
+
+                        String roleInput = sc.nextLine().trim();
+                        if (roleInput.equals("0")) {
+                            System.out.println("Registration cancelled.");
+                            break;
+                        }
+
+                        int roleChoice = 0;
+                        try {
+                            roleChoice = Integer.parseInt(roleInput);
+                        } catch (NumberFormatException e) {
+                            roleChoice = 0;
+                        }
+
+                        switch (roleChoice) {
+                            case 1: role = "Admin"; break;
+                            case 2: role = "Staff/Cashier"; break;
+                            case 3: role = "Inventory Clerk"; break;
+                            default: role = null;
+                        }
+
+                        if (role != null) {
+                            break; // Husto ang pili, mogawas sa loop
+                        } else {
+                            System.out.println("Invalid role selection! Please choose between 1 to 3.");
+                        }
                     }
 
                     if (role != null) {
                         userDao.registerUser(name, user, pass, role);
-                    } else {
-                        System.out.println("Invalid role selection!");
+                        System.out.println("Success: Registered successfully!");
                     }
                     break;
 
