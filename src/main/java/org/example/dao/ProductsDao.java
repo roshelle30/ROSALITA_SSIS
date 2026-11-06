@@ -8,7 +8,6 @@ import java.util.List;
 public class ProductsDao {
     private final ActivityLogDao logDao = new ActivityLogDao();
 
-    // 1. Pagdugang og bag-ong produkto (Auto-log: PRODUCT_ADDED)
     public boolean addProduct(Products product, int adminId) {
         String sql = "INSERT INTO Products (product_name, category, unit_price, stock_quantity, reorder_level) VALUES (?, ?, ?, ?, ?)";
         boolean isAdded = false;
@@ -30,16 +29,12 @@ public class ProductsDao {
             System.err.println("Error adding product: " + e.getMessage());
             return false;
         }
-
-        // I-call ang log human masira ang statement aron malikayan ang SQLITE_BUSY
         if (isAdded) {
             logDao.logAction(adminId, "PRODUCT_ADDED: Admin " + adminId + " added product: " + product.productName());
             return true;
         }
         return false;
     }
-
-    // 2. Pagkuha sa tanang produkto para sa inventory list
     public List<Products> getAllProducts() {
         List<Products> productsList = new ArrayList<>();
         String sql = "SELECT * FROM Products";
@@ -64,7 +59,6 @@ public class ProductsDao {
         return productsList;
     }
 
-    // 3. Pag-update sa stock o detalye sa produkto (Auto-log: PRODUCT_UPDATED)
     public boolean updateProduct(Products product, int adminId) {
         String sql = "UPDATE Products SET product_name = ?, category = ?, unit_price = ?, stock_quantity = ?, reorder_level = ? WHERE product_id = ?";
         boolean isUpdated = false;
@@ -95,7 +89,6 @@ public class ProductsDao {
         return false;
     }
 
-    // 4. Pag-delete og produkto (Auto-log: PRODUCT_DELETED)
     public boolean deleteProduct(int productId, String productName, int adminId) {
         String sql = "DELETE FROM Products WHERE product_id = ?";
         boolean isDeleted = false;

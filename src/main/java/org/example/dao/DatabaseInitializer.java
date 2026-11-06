@@ -18,7 +18,7 @@ public class DatabaseInitializer {
 
         String createProductsTable = "CREATE TABLE IF NOT EXISTS Products (" +
                 "product_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "product_name TEXT NOT NULL, " +
+                "product_name TEXT UNIQUE NOT NULL, " +
                 "category TEXT, " +
                 "unit_price REAL NOT NULL, " +
                 "stock_quantity INTEGER DEFAULT 0, " +

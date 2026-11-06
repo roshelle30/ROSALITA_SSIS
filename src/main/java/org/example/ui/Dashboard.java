@@ -1,46 +1,50 @@
 package org.example.ui;
 
+import org.example.model.User;
 import java.util.Scanner;
 
 public class Dashboard {
     private final Scanner sc;
+    private final User currentUser;
 
     public Dashboard(Scanner sc) {
         this.sc = sc;
+        this.currentUser = null;
+    }
+
+    public Dashboard(Scanner sc, User currentUser) {
+        this.sc = sc;
+        this.currentUser = currentUser;
     }
 
     public void adminDashboard() {
         boolean inAdminMenu = true;
 
-        while (inAdminMenu) {
-            System.out.println("\n|============================================================|");
-            System.out.println("|                      ADMIN DASHBOARD                       |");
-            System.out.println("|============================================================|");
-            System.out.println("| 1. Manage Users (Approve / Deactivate Accounts)            |");
-            System.out.println("| 2. Manage Products (Add / Edit / Delete Inventory)         |");
-            System.out.println("| 3. View Daily Sales & Low-Stock Reports                    |");
-            System.out.println("| 4. View System Activity & Audit Logs                       |");
-            System.out.println("| 5. Logout                                                  |");
-            System.out.println("|============================================================|");
-            System.out.print("Choose an Option: ");
+        printAdminHeader();
 
-            String adminChoice = sc.nextLine();
+        while (inAdminMenu) {
+            System.out.print("\nChoose an Option: ");
+            String adminChoice = sc.nextLine().trim();
 
             switch (adminChoice) {
                 case "1":
-                    System.out.println("\n--- MANAGE USERS ---");
+                    AdminMenu.manageUsersMenu(currentUser);
+                    printAdminHeader();
                     break;
 
                 case "2":
-                    System.out.println("\n--- MANAGE PRODUCTS ---");
+                    AdminMenu.manageProductsMenu(currentUser);
+                    printAdminHeader();
                     break;
 
                 case "3":
-                    System.out.println("\n--- DAILY SALES & LOW-STOCK REPORTS ---");
+                    AdminMenu.viewReportsMenu();
+                    printAdminHeader();
                     break;
 
                 case "4":
-                    System.out.println("\n--- SYSTEM ACTIVITY & AUDIT LOGS ---");
+                    AdminMenu.viewLogsMenu();
+                    printAdminHeader();
                     break;
 
                 case "5":
@@ -49,96 +53,99 @@ public class Dashboard {
                     break;
 
                 default:
-                    System.out.println("Invalid option! Please choose between 1 to 5.");
+                    System.out.println("Invalid option! Please choose between 1-5.");
                     break;
             }
         }
+    }
+
+    private void printAdminHeader() {
+        System.out.println("\n|============================================================|");
+        System.out.println("|                      ADMIN DASHBOARD                       |");
+        System.out.println("|============================================================|");
+        System.out.println("| 1. Manage Users (Approve / Deactivate Accounts)            |");
+        System.out.println("| 2. Manage Products (Add / Edit / Delete Inventory)         |");
+        System.out.println("| 3. View Daily Sales & Low-Stock Reports                    |");
+        System.out.println("| 4. View System Activity & Audit Logs                       |");
+        System.out.println("| 5. Logout                                                  |");
+        System.out.println("|============================================================|");
     }
 
     public void cashierDashboard() {
-        boolean inCashierMenu = true;
-
-        while (inCashierMenu) {
-            System.out.println("\n|============================================================|");
-            System.out.println("|                 STORE STAFF / CASHIER MENU                 |");
-            System.out.println("|============================================================|");
-            System.out.println("| 1. New Sales Transaction (Checkout)                        |");
-            System.out.println("| 2. Search / View School Supplies                           |");
-            System.out.println("| 3. View Sales History                                      |");
-            System.out.println("| 4. Cancel / Void Transaction Item                          |");
-            System.out.println("| 5. Logout                                                  |");
-            System.out.println("|============================================================|");
-            System.out.print("Choose an Option: ");
-
-            String cashierChoice = sc.nextLine();
-
-            switch (cashierChoice) {
-                case "1":
-                    System.out.println("\n--- NEW SALES TRANSACTION ---");
-                    break;
-
-                case "2":
-                    System.out.println("\n--- SEARCH / VIEW SUPPLIES ---");
-                    break;
-
-                case "3":
-                    System.out.println("\n--- VIEW SALES HISTORY ---");
-                    break;
-
-                case "4":
-                    System.out.println("\n--- VOID TRANSACTION ITEM ---");
-                    break;
-
-                case "5":
-                    System.out.println("Logging out from Cashier Dashboard...");
-                    inCashierMenu = false;
-                    break;
-
-                default:
-                    System.out.println("Invalid option! Please choose between 1 to 5.");
-                    break;
-            }
-        }
+        StaffCashierMenu.cashierDashboardMenu(sc, currentUser);
     }
 
     public void inventoryDashboard() {
-        boolean inInventoryMenu = true;
+        InventoryClerkMenu.showInventoryClerkMenu(sc, currentUser);
+    }
 
-        while (inInventoryMenu) {
-            System.out.println("\n|============================================================|");
-            System.out.println("|                  INVENTORY CLERK DASHBOARD                 |");
-            System.out.println("|============================================================|");
-            System.out.println("| 1. Log New Supplier Restock Shipment                       |");
-            System.out.println("| 2. Manual Stock Adjustment (Damage / Audit Reconciliation) |");
-            System.out.println("| 3. View Inventory Stock Levels & Movement Logs             |");
-            System.out.println("| 4. Logout                                                  |");
-            System.out.println("|============================================================|");
-            System.out.print("Choose an Option: ");
+    public static void printManageUsersHeader() {
+        System.out.println("\n+-----+-----------------+-----------------+--------------------+--------------+");
+        System.out.println("|                                MANAGE USERS                                 |");
+        System.out.println("|=============================================================================|");
+        System.out.println("| 1. View All System Users                                                    |");
+        System.out.println("| 2. View Pending Registrations                                               |");
+        System.out.println("| 3. Approve User Account                                                     |");
+        System.out.println("| 4. Update User Role and Status                                              |");
+        System.out.println("| 5. Delete User Account                                                      |");
+        System.out.println("| 6. Back to Admin Dashboard                                                  |");
+        System.out.println("+-----+-----------------+-----------------+--------------------+--------------+");
+    }
 
-            String clerkChoice = sc.nextLine();
+    public static void printManageProductsHeader() {
+        System.out.println("\n+--------------------------------------------------------------------------------------------------+");
+        System.out.println("|                                   MANAGE PRODUCTS (INVENTORY)                                    |");
+        System.out.println("+--------------------------------------------------------------------------------------------------+");
+        System.out.println("| 1. View All Inventory Products                                                                   |");
+        System.out.println("| 2. Add New Product                                                                               |");
+        System.out.println("| 3. Update Existing Product Details / Stock                                                       |");
+        System.out.println("| 4. Delete Product                                                                                |");
+        System.out.println("| 5. Back to Admin Dashboard                                                                       |");
+        System.out.println("+--------------------------------------------------------------------------------------------------+");
+    }
 
-            switch (clerkChoice) {
-                case "1":
-                    System.out.println("\n--- SUPPLIER RESTOCK SHIPMENT ---");
-                    break;
+    public static void printReportsHeader() {
+        System.out.println("\n+--------------------------------------------------------------------------------------------------+");
+        System.out.println("|                              VIEW DAILY SALES & LOW-STOCK REPORTS                                |");
+        System.out.println("+--------------------------------------------------------------------------------------------------+");
+        System.out.println("| 1. View Low-Stock Inventory Report                                                               |");
+        System.out.println("| 2. View Daily Sales Report                                                                       |");
+        System.out.println("| 3. Back to Admin Dashboard                                                                       |");
+        System.out.println("+--------------------------------------------------------------------------------------------------+");
+    }
 
-                case "2":
-                    System.out.println("\n--- MANUAL STOCK ADJUSTMENT ---");
-                    break;
+    public static void printLogsHeader() {
+        System.out.println("\n+--------------------------------------------------------------------------+");
+        System.out.println("|                         SYSTEM AUDIT LOGS MENU                           |");
+        System.out.println("+--------------------------------------------------------------------------+");
+        System.out.println("| 1. View All System Logs                                                  |");
+        System.out.println("| 2. Filter Logs by User ID                                                |");
+        System.out.println("| 3. Back to Admin Dashboard                                               |");
+        System.out.println("+--------------------------------------------------------------------------+");
+    }
 
-                case "3":
-                    System.out.println("\n--- INVENTORY MOVEMENT LOGS ---");
-                    break;
+    public static void printCashierMenuHeader() {
+        System.out.println("\n|============================================================|");
+        System.out.println("|                 STORE STAFF / CASHIER MENU                 |");
+        System.out.println("|============================================================|");
+        System.out.println("| 1. New Sales Transaction (Checkout)                        |");
+        System.out.println("| 2. Search / View School Supplies                           |");
+        System.out.println("| 3. View Sales History                                      |");
+        System.out.println("| 4. Cancel / Void Transaction Item                          |");
+        System.out.println("| 5. Logout                                                  |");
+        System.out.println("|============================================================|");
+    }
 
-                case "4":
-                    System.out.println("Logging out from Inventory Dashboard...");
-                    inInventoryMenu = false;
-                    break;
-
-                default:
-                    System.out.println("Invalid option! Please choose between 1 to 4.");
-                    break;
-            }
-        }
+    public static void printInventoryClerkMenuHeader() {
+        System.out.println("\n|============================================================|");
+        System.out.println("|                  INVENTORY CLERK DASHBOARD                 |");
+        System.out.println("|============================================================|");
+        System.out.println("| 1. Add New School Supply Product                           |");
+        System.out.println("| 2. Update Product Details & Pricing                        |");
+        System.out.println("| 3. Record Stock Restock Shipments / Adjustments            |");
+        System.out.println("| 4. Delete Product                                          |");
+        System.out.println("| 5. View Inventory Stock Levels                             |");
+        System.out.println("| 6. Logout                                                  |");
+        System.out.println("|============================================================|");
     }
 }

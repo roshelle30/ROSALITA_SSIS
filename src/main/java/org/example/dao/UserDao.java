@@ -23,7 +23,7 @@ public class UserDao {
             pstmt.setString(3, password_hash);
             pstmt.setString(4, role.toUpperCase());
             pstmt.executeUpdate();
-            System.out.println("Successful Registration, Waiting for Admin Approval! ");
+            System.out.println("\nSuccessful Registration, Waiting for Admin Approval! ");
             return true;
 
         }catch (SQLException e){
@@ -40,7 +40,6 @@ public class UserDao {
         String status = null;
         String fullName = null;
 
-        // 1. Kuhaon ang data ug isira dayon ang connection/resultset aron dili ma-lock ang DB
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -61,7 +60,6 @@ public class UserDao {
             return null;
         }
 
-        // 2. I-check ang status human masira ang login query connection
         if (userId == -1) {
             System.out.println("Login Failed: Invalid username or password.");
             return null;
@@ -72,7 +70,6 @@ public class UserDao {
             return null;
         }
 
-        // 3. Safe na nga mo-log kay walay nag-abang nga abli nga resultset
         logDao.logAction(userId, "Logged in as: " + role.toUpperCase());
 
         System.out.println("\nLogin Successful! Welcome, " + fullName);
@@ -139,7 +136,6 @@ public class UserDao {
             return false;
         }
 
-        // I-call ang log human masira ang update statement (Gitakdo sa USER_APPROVED format)
         if (updated) {
             logDao.logAction(adminId, "USER_APPROVED: Admin " + adminId + " approved account for User ID " + userId);
             return true;
@@ -167,9 +163,31 @@ public class UserDao {
             return false;
         }
 
-        // I-call ang log human masira ang update statement (Gitakdo sa USER_UPDATED format)
         if (updated) {
             logDao.logAction(adminId, "USER_UPDATED: Admin " + adminId + " changed role of User " + userId + " to " + newRole);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean deleteUser(int userId, int adminId) {
+        String query = "DELETE FROM users WHERE user_id = ?";
+        boolean deleted = false;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, userId);
+            int rowsDeleted = pstmt.executeUpdate();
+            if (rowsDeleted > 0) {
+                deleted = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (deleted) {
+            logDao.logAction(adminId, "USER_DELETED: Admin " + adminId + " deleted User ID " + userId);
             return true;
         }
         return false;
