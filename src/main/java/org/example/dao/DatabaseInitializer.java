@@ -60,6 +60,7 @@ public class DatabaseInitializer {
                 "log_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "user_id INTEGER, " +
                 "action TEXT NOT NULL, " +
+                "description TEXT, " +
                 "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                 "FOREIGN KEY (user_id) REFERENCES users(user_id)" +
                 ");";

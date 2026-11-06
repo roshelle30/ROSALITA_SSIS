@@ -17,8 +17,9 @@ public class AdminMenu {
     private static final SalesDao salesDao = new SalesDao();
     private static final ActivityLogDao logDao = new ActivityLogDao();
 
-    private static final String LOG_FORMAT = "| %-5s | %-8s | %-25s | %-85s |\n";
-    private static final String LOG_BORDER = "+-------+----------+--------------------------+----------------------------------------------------------------------------------------+\n";
+    private static final String LOG_FORMAT = "| %-5s | %-8s | %-25s | %-55s |%-60s\n";
+    private static final String LOG_BORDER = "+-------+----------+---------------------------+-------------------------------------------------------------------------------------------------------------------------------------------+" +
+            "-----------+\n";
 
     public static void displayUserTable(List<User> users) {
         String format = "| %-3s | %-15s | %-15s | %-18s | %-10s |\n";
@@ -739,14 +740,14 @@ public class AdminMenu {
             switch (logChoice) {
                 case "1":
                     System.out.print(LOG_BORDER);
-                    System.out.format(LOG_FORMAT, "ID", "User ID", "Timestamp", "Action");
+                    System.out.format(LOG_FORMAT, "ID", "User ID", "Timestamp", "Action", "Description");
                     System.out.print(LOG_BORDER);
                     List<Activity_Logs> allLogs = logDao.getAllLogs();
                     if (allLogs.isEmpty()) {
                         System.out.println("No audit logs found.");
                     } else {
                         for (Activity_Logs log : allLogs) {
-                            System.out.format(LOG_FORMAT, log.logId(), log.userId(), log.timestamp(), log.action());
+                            System.out.format(LOG_FORMAT, log.logId(), log.userId(), log.timestamp(), log.action(), log.description());
                         }
                     }
                     System.out.print(LOG_BORDER);
@@ -768,10 +769,10 @@ public class AdminMenu {
                             continue;
                         } else {
                             System.out.print(LOG_BORDER);
-                            System.out.format(LOG_FORMAT, "ID", "User ID", "Timestamp", "Action");
+                            System.out.format(LOG_FORMAT, "ID", "User ID", "Timestamp", "Action", "Description");
                             System.out.print(LOG_BORDER);
                             for (Activity_Logs log : userLogs) {
-                                System.out.format(LOG_FORMAT, log.logId(), log.userId(), log.timestamp(), log.action());
+                                System.out.format(LOG_FORMAT, log.logId(), log.userId(), log.timestamp(), log.action(), log.description());
                             }
                             System.out.print(LOG_BORDER);
                             break;

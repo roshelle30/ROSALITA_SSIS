@@ -8,12 +8,18 @@ import java.util.List;
 public class ActivityLogDao {
 
     public boolean logAction(int userId, String action) {
-        String sql = "INSERT INTO Activity_Logs (user_id, action) VALUES (?, ?)";
+        String description = "Executed " + action + " operation in the system.";
+        return logAction(userId, action, description);
+    }
+
+    public boolean logAction(int userId, String action, String description) {
+        String sql = "INSERT INTO Activity_Logs (user_id, action, description) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
             pstmt.setString(2, action);
+            pstmt.setString(3, description != null ? description : action);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -35,7 +41,8 @@ public class ActivityLogDao {
                         rs.getInt("log_id"),
                         rs.getInt("user_id"),
                         rs.getString("action"),
-                        rs.getTimestamp("timestamp")
+                        rs.getTimestamp("timestamp"),
+                        rs.getString("description")
                 ));
             }
         } catch (SQLException e) {
@@ -58,7 +65,8 @@ public class ActivityLogDao {
                             rs.getInt("log_id"),
                             rs.getInt("user_id"),
                             rs.getString("action"),
-                            rs.getTimestamp("timestamp")
+                            rs.getTimestamp("timestamp"),
+                            rs.getString("description")
                     ));
                 }
             }
