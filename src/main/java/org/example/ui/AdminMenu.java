@@ -307,7 +307,7 @@ public class AdminMenu {
                         int adminId = (currentAdmin != null) ? currentAdmin.user_id() : 1;
                         boolean success = userDao.updateUserRoleAndStatus(targetId, newRole, newStatus, adminId);
                         if (success) {
-                            System.out.println("Success: User ID " + targetId + " updated successfully!");
+                            System.out.println("\nSuccess: User ID " + targetId + " updated successfully!");
                         } else {
                             System.out.println("Error: Failed to update user.");
                         }
@@ -418,8 +418,8 @@ public class AdminMenu {
 
             switch (productChoice) {
                 case "1":
-                    System.out.println("\n+--------------------------------------------------------------------------------------------------+");
-                    System.out.println("|                                     ALL INVENTORY PRODUCTS                                       |");
+                    System.out.println("\n+---------------------------------------------------------------------------------------------------+");
+                    System.out.println("|                                     ALL INVENTORY PRODUCTS                                        |");
                     List<Products> products = productsDao.getAllProducts();
                     displayProductTable(products);
 
@@ -464,7 +464,7 @@ public class AdminMenu {
                         }
 
                         if (productExists) {
-                            System.out.println("Error: Product '" + name + "' already exists in the inventory! Please enter a different name.");
+                            System.out.println("Error: Product '" + name + "' already exists in the inventory! Please enter a different name.\n");
                         } else {
                             break;
                         }
@@ -531,7 +531,7 @@ public class AdminMenu {
 
                         String uName;
                         while (true) {
-                            System.out.print("Enter New Product Name [" + existingProduct.productName() + "]: ");
+                            System.out.print("\nEnter New Product Name [" + existingProduct.productName() + "]: ");
                             uName = sc.nextLine().trim();
                             if (uName.isEmpty()) {
                                 uName = existingProduct.productName();
@@ -591,7 +591,7 @@ public class AdminMenu {
 
                     boolean deletingProducts = true;
                     while (deletingProducts) {
-                        int deleteId = readIntInput("Enter Product ID to delete (Enter 0 to cancel): ");
+                        int deleteId = readIntInput("\nEnter Product ID to delete (Enter 0 to cancel): ");
                         if (deleteId == 0) {
                             System.out.println("Delete action cancelled.");
                             break;
@@ -634,7 +634,7 @@ public class AdminMenu {
                             boolean deleted = productsDao.deleteProduct(deleteId, deleteName, dAdminId);
 
                             if (deleted) {
-                                System.out.println("Success: Product ID " + deleteId + " deleted successfully and logged!");
+                                System.out.println("\nSuccess: Product ID " + deleteId + " deleted successfully and logged!");
                                 allProdsForDelete = productsDao.getAllProducts();
                             } else {
                                 System.out.println("Error: Failed to delete product.");
@@ -756,6 +756,16 @@ public class AdminMenu {
                     break;
 
                 case "2":
+                    System.out.println("\n|----- AVAILABLE USERS REFERENCE -----|");
+                    System.out.println(String.format("|%-10s | %-20s    |", "|User ID", "Username"));
+                    System.out.println("|-------------------------------------|");
+
+                    List<User> userList = userDao.getAllUsers();
+                    for (User u : userList) {
+                        System.out.println(String.format("|%-10d | %-20s    |", u.user_id(), u.username()));
+                    }
+                    System.out.println("|-------------------------------------|");
+
                     while (true) {
                         int filterId = readIntInput("\nEnter User ID to filter (Enter 0 to cancel): ");
                         if (filterId == 0) {

@@ -98,7 +98,7 @@ public class Authentication {
                     }
 
                     String role = null;
-                    System.out.println("Role: ");
+                    System.out.println("\nRole: ");
                     System.out.println(" 1. Admin");
                     System.out.println(" 2. Staff/Cashier");
                     System.out.println(" 3. Inventory Clerk");

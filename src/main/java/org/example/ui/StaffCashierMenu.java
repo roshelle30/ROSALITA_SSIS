@@ -259,10 +259,9 @@ public class StaffCashierMenu {
 
                         if (!transIdExists) {
                             System.out.println("Error: Transaction ID " + voidTransId + " does not exist in the table!");
-                            continue; // Mobalik dayon sa prompt nga walay apil ang table
+                            continue;
                         }
 
-                        // Y/N Confirmation Loop
                         boolean confirmed = false;
                         while (true) {
                             System.out.print("\nAre you sure you want to void transaction ID " + voidTransId + "? (y/n): ");
@@ -286,13 +285,12 @@ public class StaffCashierMenu {
 
                             if (voidSuccess) {
                                 System.out.println("\nSuccess: Transaction ID " + voidTransId + " has been voided and stock restored!");
-                                voidHistory = salesDao.getSalesHistory(); // Refresh history
+                                voidHistory = salesDao.getSalesHistory();
                             } else {
                                 System.out.println("Error: Failed to void transaction. Please check the Transaction ID.\n");
                             }
                         }
 
-                        // Ask if they want to void another transaction
                         while (true) {
                             System.out.print("\nDo you want to void another transaction? (y/n): ");
                             String another = sc.nextLine().trim().toLowerCase();
