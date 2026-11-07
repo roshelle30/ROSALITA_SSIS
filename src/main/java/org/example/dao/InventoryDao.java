@@ -21,7 +21,7 @@ public class InventoryDao {
 
             try {
                 ActivityLogDao logDao = new ActivityLogDao();
-                logDao.logAction(clerkId, "INVENTORY_ADD: Added new product " + productName + " with initial stock " + stockQuantity);
+                logDao.logAction(clerkId, "PRODUCT_ADDED", "Added new product " + productName + " with initial stock " + stockQuantity);
             } catch (Exception e) {
                 System.out.println("Failed to record activity log: " + e.getMessage());
             }
@@ -49,7 +49,7 @@ public class InventoryDao {
             if (rowsAffected > 0) {
                 try {
                     ActivityLogDao logDao = new ActivityLogDao();
-                    logDao.logAction(clerkId, "INVENTORY_UPDATE: Updated details for Product ID " + productId);
+                    logDao.logAction(clerkId, "PRODUCT_UPDATED", "Updated details for Product ID " + productId + " (" + productName + ")");
                 } catch (Exception e) {
                     System.out.println("Failed to record activity log: " + e.getMessage());
                 }
@@ -111,7 +111,7 @@ public class InventoryDao {
 
             try {
                 ActivityLogDao logDao = new ActivityLogDao();
-                logDao.logAction(clerkId, "STOCK_ADJUSTMENT: Adjusted stock for " + productName + " by " + quantityChange + " (" + remarks + ")");
+                logDao.logAction(clerkId, "STOCK_ADJUSTED", "Adjusted stock for " + productName + " by " + quantityChange + " (" + remarks + ")");
             } catch (Exception e) {
                 System.out.println("Failed to record activity log: " + e.getMessage());
             }
@@ -165,7 +165,7 @@ public class InventoryDao {
                 if (rowsAffected > 0) {
                     try {
                         ActivityLogDao logDao = new ActivityLogDao();
-                        logDao.logAction(clerkId, "INVENTORY_DELETE: Deleted product ID " + productId + " (" + productName + ")");
+                        logDao.logAction(clerkId, "PRODUCT_DELETED", "Deleted product ID " + productId + " (" + productName + ")");
                     } catch (Exception e) {
                         System.out.println("Failed to record activity log: " + e.getMessage());
                     }

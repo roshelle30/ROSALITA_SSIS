@@ -93,10 +93,10 @@ public class InventoryClerkMenu {
 
                     String productName = "";
                     while (true) {
-                        System.out.print("\nEnter Product Name (or type 'cancel' to abort): ");
+                        System.out.print("\nEnter Product Name (or type '0' or 'cancel' to abort): ");
                         productName = sc.nextLine().trim();
 
-                        if (productName.equalsIgnoreCase("cancel")) {
+                        if (productName.equalsIgnoreCase("cancel") || productName.equals("0")) {
                             System.out.println("Add product cancelled.");
                             break;
                         }
@@ -120,7 +120,7 @@ public class InventoryClerkMenu {
                         break;
                     }
 
-                    if (productName.equalsIgnoreCase("cancel")) {
+                    if (productName.equalsIgnoreCase("cancel") || productName.equals("0")) {
                         Dashboard.printInventoryClerkMenuHeader();
                         break;
                     }

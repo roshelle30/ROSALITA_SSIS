@@ -3,10 +3,19 @@ package org.example.ui;
 import org.example.dao.SalesDao;
 import org.example.model.Products;
 import org.example.model.User;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+class CartItem {
+    Products product;
+    int quantity;
+
+    public CartItem(Products product, int quantity) {
+        this.product = product;
+        this.quantity = quantity;
+    }
+}
 public class StaffCashierMenu {
     private static final SalesDao salesDao = new SalesDao();
 
@@ -94,90 +103,165 @@ public class StaffCashierMenu {
                         break;
                     }
 
-                    Products selectedProduct = null;
+                    List<CartItem> cart = new ArrayList<>();
+                    boolean addingItems = true;
 
-                    while (true) {
-                        int productId = readIntInput(sc, "\nEnter Product ID to checkout (Enter 0 to cancel): ");
-                        if (productId == 0) {
-                            System.out.println("Sales transaction cancelled.");
+                    while (addingItems) {
+                        Products selectedProduct = null;
+                        while (true) {
+                            int productId = readIntInput(sc, "\nEnter Product ID to checkout (Enter 0 to finish/cancel): ");
+                            if (productId == 0) {
+                                if (cart.isEmpty()) {
+                                    System.out.println("Sales transaction cancelled.");
+                                    Dashboard.printCashierMenuHeader();
+                                }
+                                addingItems = false;
+                                break;
+                            }
+
+                            for (Products p : allProds) {
+                                if (p.productId() == productId) {
+                                    selectedProduct = p;
+                                    break;
+                                }
+                            }
+
+                            if (selectedProduct == null) {
+                                System.out.println("Error: Product ID " + productId + " does not exist!");
+                                continue;
+                            }
                             break;
                         }
 
-                        for (Products p : allProds) {
-                            if (p.productId() == productId) {
-                                selectedProduct = p;
+                        if (!addingItems || selectedProduct == null) {
+                            break;
+                        }
+
+                        int quantity = 0;
+                        while (true) {
+                            quantity = readIntInput(sc, "Enter Quantity to buy: ");
+                            if (quantity <= 0) {
+                                System.out.println("Error: Quantity must be greater than 0.");
+                                continue;
+                            }
+
+                            if (quantity > selectedProduct.stockQuantity()) {
+                                System.out.println("Error: Insufficient stock! Available stock is only " + selectedProduct.stockQuantity() + "\n");
+                                continue;
+                            }
+                            break;
+                        }
+
+                        cart.add(new CartItem(selectedProduct, quantity));
+                        System.out.println("Successfully added to cart!");
+
+                        while (true) {
+                            System.out.print("Do you want to add another item? (y/n): ");
+                            String addMore = sc.nextLine().trim().toLowerCase();
+                            if (addMore.equals("y")) {
                                 break;
+                            } else if (addMore.equals("n")) {
+                                addingItems = false;
+                                break;
+                            } else {
+                                System.out.println("Invalid input! Please enter 'y' or 'n'.");
                             }
                         }
+                    }
 
-                        if (selectedProduct == null) {
-                            System.out.println("Error: Product ID " + productId + " does not exist!");
-                            continue;
-                        }
+                    if (cart.isEmpty()) {
                         break;
                     }
 
-                    if (selectedProduct == null) {
-                        Dashboard.printCashierMenuHeader();
-                        break;
+                    double subtotalAmount = 0;
+                    for (CartItem item : cart) {
+                        subtotalAmount += item.product.unitPrice() * item.quantity;
                     }
 
-                    int quantity = 0;
-                    while (true) {
-                        quantity = readIntInput(sc, "Enter Quantity to buy: ");
-                        if (quantity <= 0) {
-                            System.out.println("Error: Quantity must be greater than 0.");
-                            continue;
-                        }
+                    double discountThreshold = 1000.00;
+                    double discountRate = 0.10;
+                    double discountAmount = 0.0;
 
-                        if (quantity > selectedProduct.stockQuantity()) {
-                            System.out.println("Error: Insufficient stock! Available stock is only " + selectedProduct.stockQuantity() + "\n");
-                            continue;
-                        }
-                        break;
+                    if (subtotalAmount >= discountThreshold) {
+                        discountAmount = subtotalAmount * discountRate;
                     }
 
-                    double totalAmount = selectedProduct.unitPrice() * quantity;
+                    double finalTotalAmount = subtotalAmount - discountAmount;
 
                     double cashTendered = 0;
                     while (true) {
-                        System.out.format("Total Amount to Pay: PHP %.2f\n", totalAmount);
+                        System.out.format("\nSubtotal: PHP %.2f\n", subtotalAmount);
+                        if (discountAmount > 0) {
+                            System.out.format("Discount (10%%): -PHP %.2f\n", discountAmount);
+                        }
+                        System.out.format("Final Total Amount to Pay: PHP %.2f\n", finalTotalAmount);
                         cashTendered = readDoubleInput(sc, "Enter Cash Tendered (PHP): ");
 
-                        if (cashTendered < totalAmount) {
+                        if (cashTendered < finalTotalAmount) {
                             System.out.println("Error: Insufficient cash! The amount entered is less than total.\n");
                             continue;
                         }
                         break;
                     }
 
-                    double change = cashTendered - totalAmount;
-
-                    System.out.println("\n+--------------------------------------------------+");
-                    System.out.println("|         SCHOOL SUPPLIES INVENTORY SYSTEM         |");
-                    System.out.println("|             OFFICIAL RECEIPT SUMMARY             |");
-                    System.out.println("+--------------------------------------------------+");
-                    System.out.format("| Product Name : %-33s |\n", selectedProduct.productName());
-                    System.out.format("| Unit Price   : PHP %-29.2f |\n", selectedProduct.unitPrice());
-                    System.out.format("| Quantity     : %-33d |\n", quantity);
-                    System.out.println("+--------------------------------------------------+");
-                    System.out.format("| TOTAL AMOUNT : PHP %-29.2f |\n", totalAmount);
-                    System.out.format("| Cash Tendered: PHP %-29.2f |\n", cashTendered);
-                    System.out.format("| CHANGE       : PHP %-29.2f |\n", change);
-                    System.out.println("+--------------------------------------------------+");
+                    double change = cashTendered - finalTotalAmount;
 
                     int cashierId = (currentCashier != null) ? currentCashier.user_id() : 1;
+                    String cashierFullName = (currentCashier != null && currentCashier.full_name() != null)
+                            ? currentCashier.full_name()
+                            : "Cashier #" + cashierId;
                     String paymentMethod = "CASH";
 
-                    boolean success = salesDao.processCheckout(selectedProduct.productId(), quantity, cashierId, paymentMethod, totalAmount);
+                    boolean allSuccess = true;
+                    for (CartItem item : cart) {
+                        double itemSub = item.product.unitPrice() * item.quantity;
+                        double itemFinalSub = itemSub - (itemSub * (discountAmount / subtotalAmount));
 
-                    if (success) {
-                        System.out.println("\nSuccess: Transaction completed successfully! Stock updated and logged.");
-                    } else {
-                        System.out.println("\nError: Transaction failed.");
+                        boolean success = salesDao.processCheckout(item.product.productId(), item.quantity, cashierId, paymentMethod, itemFinalSub);
+                        if (!success) {
+                            allSuccess = false;
+                        }
                     }
 
-                    pressEnterToContinue(sc);
+                    if (allSuccess) {
+                        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                        java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        long receiptNo = System.currentTimeMillis() % 1000000;
+
+                        System.out.println("\n+------------------------------------------------------------------+");
+                        System.out.println("|                 SCHOOL SUPPLIES INVENTORY SYSTEM                 |");
+                        System.out.println("|                    OFFICIAL SALES RECEIPT                        |");
+                        System.out.println("+------------------------------------------------------------------+");
+                        System.out.format("| Receipt No  : %-18d Date: %-25s |\n", receiptNo, dtf.format(now));
+                        System.out.format("| Cashier     : %-50s |\n", cashierFullName);
+                        System.out.format("| Mode of Pay : %-50s |\n", paymentMethod);
+                        System.out.println("+------------------------------------------------------------------+");
+                        System.out.println("| Product Name              | Unit Price   | Qty   | Subtotal      |");
+                        System.out.println("+------------------------------------------------------------------+");
+                        for (CartItem item : cart) {
+                            double itemSub = item.product.unitPrice() * item.quantity;
+                            System.out.format("| %-25s | PHP %-8.2f | %-5d | PHP %-9.2f |\n",
+                                    item.product.productName(), item.product.unitPrice(), item.quantity, itemSub);
+                        }
+                        System.out.println("+------------------------------------------------------------------+");
+                        System.out.format("| SUBTOTAL     : PHP %-45.2f |\n", subtotalAmount);
+                        if (discountAmount > 0) {
+                            System.out.format("| DISCOUNT(10%%): -PHP %-44.2f |\n", discountAmount);
+                        } else {
+                            System.out.println("| DISCOUNT     : NONE (Min. spend PHP 1,000 for 10%)               |");
+                        }
+                        System.out.format("| FINAL TOTAL  : PHP %-45.2f |\n", finalTotalAmount);
+                        System.out.format("| Cash Tendered: PHP %-45.2f |\n", cashTendered);
+                        System.out.format("| CHANGE       : PHP %-45.2f |\n", change);
+                        System.out.println("+------------------------------------------------------------------+");
+                        System.out.println("|            Thank you for your purchase!                          |");
+                        System.out.println("|            Please come again!                                    |");
+                        System.out.println("+------------------------------------------------------------------+");
+                        System.out.println("\nSuccess: Transaction completed successfully! Stock updated and logged.");
+                    } else {
+                        System.out.println("\nError: Some items in the transaction failed.");
+                    }
+
                     Dashboard.printCashierMenuHeader();
                     break;
 

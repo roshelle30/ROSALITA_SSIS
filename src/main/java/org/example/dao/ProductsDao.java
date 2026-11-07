@@ -30,7 +30,7 @@ public class ProductsDao {
             return false;
         }
         if (isAdded) {
-            logDao.logAction(adminId, "PRODUCT_ADDED: Admin " + adminId + " added product: " + product.productName());
+            logDao.logAction(adminId, "PRODUCT_ADDED", "Admin " + adminId + " added product: " + product.productName());
             return true;
         }
         return false;
@@ -83,7 +83,7 @@ public class ProductsDao {
         }
 
         if (isUpdated) {
-            logDao.logAction(adminId, "PRODUCT_UPDATED: Admin " + adminId + " updated product ID " + product.productId() + " (" + product.productName() + ")");
+            logDao.logAction(adminId, "PRODUCT_UPDATED", "Admin " + adminId + " updated product ID " + product.productId() + " (" + product.productName() + ")");
             return true;
         }
         return false;
@@ -107,7 +107,7 @@ public class ProductsDao {
         }
 
         if (isDeleted) {
-            logDao.logAction(adminId, "PRODUCT_DELETED: Admin " + adminId + " deleted product ID " + productId + " (" + productName + ")");
+            logDao.logAction(adminId, "PRODUCT_DELETED", "Admin " + adminId + " deleted product ID " + productId + " (" + productName + ")");
             return true;
         }
         return false;

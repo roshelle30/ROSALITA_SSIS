@@ -30,7 +30,7 @@ public class ActivityLogDao {
 
     public List<Activity_Logs> getAllLogs() {
         List<Activity_Logs> logs = new ArrayList<>();
-        String sql = "SELECT * FROM Activity_Logs ORDER BY timestamp DESC";
+        String sql = "SELECT * FROM Activity_Logs ORDER BY timestamp DESC, log_id DESC";
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -53,7 +53,7 @@ public class ActivityLogDao {
 
     public List<Activity_Logs> getLogsByUserId(int userId) {
         List<Activity_Logs> logs = new ArrayList<>();
-        String sql = "SELECT * FROM Activity_Logs WHERE user_id = ? ORDER BY timestamp DESC";
+        String sql = "SELECT * FROM Activity_Logs WHERE user_id = ? ORDER BY timestamp DESC, log_id DESC";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

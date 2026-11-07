@@ -70,10 +70,34 @@ public class UserDao {
             return null;
         }
 
-        logDao.logAction(userId, "Logged in as: " + role.toUpperCase());
+        logDao.logAction(userId, "USER_LOGIN", "User " + username + " logged in with role " + role.toUpperCase());
 
         System.out.println("\nLogin Successful! Welcome, " + fullName);
         return role;
+    }
+
+    public User getUserByUsername(String username) {
+        String sql = "SELECT * FROM users WHERE username = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new User(
+                            rs.getInt("user_id"),
+                            rs.getString("full_name"),
+                            rs.getString("username"),
+                            rs.getString("password_hash"),
+                            rs.getString("role"),
+                            rs.getString("status")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Database Error: " + e.getMessage());
+        }
+        return null;
     }
 
     public List<User> getAllUsers() {
@@ -137,7 +161,7 @@ public class UserDao {
         }
 
         if (updated) {
-            logDao.logAction(adminId, "USER_APPROVED: Admin " + adminId + " approved account for User ID " + userId);
+            logDao.logAction(adminId, "USER_APPROVED", "Admin " + adminId + " approved account for User ID " + userId);
             return true;
         }
         return false;
@@ -164,7 +188,7 @@ public class UserDao {
         }
 
         if (updated) {
-            logDao.logAction(adminId, "USER_UPDATED: Admin " + adminId + " changed role of User " + userId + " to " + newRole);
+            logDao.logAction(adminId, "USER_UPDATED", "Admin " + adminId + " changed role of User " + userId + " to " + newRole);
             return true;
         }
         return false;
@@ -187,7 +211,7 @@ public class UserDao {
         }
 
         if (deleted) {
-            logDao.logAction(adminId, "USER_DELETED: Admin " + adminId + " deleted User ID " + userId);
+            logDao.logAction(adminId, "USER_DELETED", "Admin " + adminId + " deleted User ID " + userId);
             return true;
         }
         return false;

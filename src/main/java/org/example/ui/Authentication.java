@@ -1,17 +1,21 @@
 package org.example.ui;
 
 import org.example.dao.UserDao;
+import org.example.dao.ActivityLogDao;
+import org.example.model.User;
 import java.util.Scanner;
 
 public class Authentication {
     private final UserDao userDao;
     private final Scanner sc;
     private final Dashboard dashboard;
+    private final ActivityLogDao logDao;
 
     public Authentication(UserDao userDao, Scanner sc) {
         this.userDao = userDao;
         this.sc = sc;
         this.dashboard = new Dashboard(sc);
+        this.logDao = new ActivityLogDao();
     }
 
     public static void clearScreen() {
@@ -152,13 +156,20 @@ public class Authentication {
                         clearScreen();
                         System.out.println("\nLogged in as: " + userRole);
 
+                        User loggedInUser = userDao.getUserByUsername(loginUser);
+                        int loggedInUserId = (loggedInUser != null) ? loggedInUser.user_id() : 0;
+
+                        Dashboard activeDashboard = new Dashboard(sc, loggedInUser);
+
                         if ("ADMIN".equalsIgnoreCase(userRole)) {
-                            dashboard.adminDashboard();
+                            activeDashboard.adminDashboard();
                         } else if ("STAFF/CASHIER".equalsIgnoreCase(userRole)) {
-                            dashboard.cashierDashboard();
+                            activeDashboard.cashierDashboard();
                         } else if ("INVENTORY CLERK".equalsIgnoreCase(userRole)) {
-                            dashboard.inventoryDashboard();
+                            activeDashboard.inventoryDashboard();
                         }
+
+                        logDao.logAction(loggedInUserId, "USER_LOGOUT", "User " + loginUser + " logged out.");
                     }
                     printMainMenuHeader();
                     break;

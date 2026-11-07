@@ -17,9 +17,8 @@ public class AdminMenu {
     private static final SalesDao salesDao = new SalesDao();
     private static final ActivityLogDao logDao = new ActivityLogDao();
 
-    private static final String LOG_FORMAT = "| %-5s | %-8s | %-25s | %-55s |%-60s\n";
-    private static final String LOG_BORDER = "+-------+----------+---------------------------+-------------------------------------------------------------------------------------------------------------------------------------------+" +
-            "-----------+\n";
+    private static final String LOG_FORMAT = "| %-5s | %-8s | %-25s | %-20s |%-65s|\n";
+    private static final String LOG_BORDER = "+-------+----------+---------------------------+-----------------------------------------------------------------------------------------\n";
 
     public static void displayUserTable(List<User> users) {
         String format = "| %-3s | %-15s | %-15s | %-18s | %-10s |\n";
@@ -499,8 +498,8 @@ public class AdminMenu {
                     break;
 
                 case "3":
-                    System.out.println("\n+--------------------------------------------------------------------------------------------------+");
-                    System.out.println("|                                         UPDATE PRODUCT                                           |");
+                    System.out.println("\n+---------------------------------------------------------------------------------------------------+");
+                    System.out.println("|                                         UPDATE PRODUCT                                            |");
                     List<Products> allProdsForUpdate = productsDao.getAllProducts();
                     if (allProdsForUpdate.isEmpty()) {
                         System.out.println("No products found in inventory.");
@@ -579,8 +578,8 @@ public class AdminMenu {
                     break;
 
                 case "4":
-                    System.out.println("\n+--------------------------------------------------------------------------------------------------+");
-                    System.out.println("|                                         DELETE PRODUCT                                           |");
+                    System.out.println("\n+---------------------------------------------------------------------------------------------------+");
+                    System.out.println("|                                         DELETE PRODUCT                                            |");
                     List<Products> allProdsForDelete = productsDao.getAllProducts();
                     if (allProdsForDelete.isEmpty()) {
                         System.out.println("No products found in inventory.");

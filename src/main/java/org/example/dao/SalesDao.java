@@ -4,7 +4,6 @@ import org.example.model.Products;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 public class SalesDao {
     public List<Products> getAllProducts() {
         List<Products> products = new ArrayList<>();
@@ -129,7 +128,7 @@ public class SalesDao {
 
         try {
             ActivityLogDao logDao = new ActivityLogDao();
-            logDao.logAction(cashierId, "SALES_CHECKOUT: Sold " + quantitySold + " of " + productName + " for PHP " + totalAmount + " via " + paymentMethod);
+            logDao.logAction(cashierId, "SALES_CHECKOUT", "Sold " + quantitySold + " of " + productName + " for PHP " + totalAmount + " via " + paymentMethod);
         } catch (Exception e) {
             System.out.println("Failed to record activity log: " + e.getMessage());
         }
@@ -216,7 +215,7 @@ public class SalesDao {
 
             try {
                 ActivityLogDao logDao = new ActivityLogDao();
-                logDao.logAction(cashierId, "VOID_TRANSACTION: Voided Transaction ID " + transactionId + " and restored " + quantity + " units to Product ID " + productId);
+                logDao.logAction(cashierId, "TRANSACTION_VOIDED", "Voided Transaction ID " + transactionId + " and restored " + quantity + " units to Product ID " + productId);
             } catch (Exception e) {
                 System.out.println("Failed to record activity log: " + e.getMessage());
             }
